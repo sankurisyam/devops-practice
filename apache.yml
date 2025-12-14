@@ -1,19 +1,23 @@
 
+
 ---
 
 
 - hosts: all
+  ignore_unreachable: true
   become: true
   tasks:
   - name: update repository package
     apt:
       update_cache: yes
-
+    when: ansible_distribution == "Ubuntu"
   - name: install apache2 package
     apt:
       name: apache2
       state: latest
+    when: ansible_distribution == "Ubuntu"
   - name: add php support for apache
     apt:
       name: libapache2-mod-php
       state: latest
+    when: ansible_distribution == "Ubuntu"
