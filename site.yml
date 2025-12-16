@@ -1,0 +1,44 @@
+
+---
+
+
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Update Ubuntu packages
+      tags: always  
+      apt:
+        update_cache: yes
+        upgrade: dist
+      when: ansible_distribution == "Ubuntu"
+
+- hosts: web_servers
+  become: true
+  tasks:
+    - name: Install Apache and PHP
+      tags: apache,apache2,ubuntu
+      apt:
+        name:
+          - "{{ apache_pack }}"
+          - "{{ php_pack }}"
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+
+- hosts: db_servers
+  become: true
+  tasks:
+    - name: Install MySQL
+      tags: mysql,db,ubuntu
+      apt:
+        name: "{{ mysql_pack }}"
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+- hosts: file_servers
+  become: true
+  tasks:
+    - name: install samba
+      tags: samba
+      apt:
+        name: "{{ samba_pack }}"
+        state: latest
+      when: ansible_distribution == "Ubuntu"

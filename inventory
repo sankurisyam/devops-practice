@@ -1,1 +1,7 @@
+[web_servers]
 172.29.206.219 apache_pack=apache2 php_pack=libapache2-mod-php
+
+[db_servers]
+172.29.206.220 mysql_pack=mysql-server
+[file_servers]
+172.29.206.219 samba_pack=samba

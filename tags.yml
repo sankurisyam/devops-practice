@@ -1,0 +1,30 @@
+- hosts: all
+  become: true
+
+  pre_tasks:
+    - name: OS check
+      fail:
+        msg: "Ubuntu only"
+      when: ansible_distribution != "Ubuntu"
+      tags: always
+
+  tasks:
+    - name: Update system
+      apt: update_cache=yes upgrade=dist
+      tags: update
+
+    - name: Install Apache
+      apt: name=apache2 state=present
+      tags: install
+
+    - name: Configure Apache
+      template:
+        src: apache.conf.j2
+        dest: /etc/apache2/apache2.conf
+      tags: config
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+      tags: service
