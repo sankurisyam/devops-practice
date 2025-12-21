@@ -1,0 +1,42 @@
+
+
+
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Update Ubuntu packages
+      tags: always
+      apt:
+        update_cache: yes
+        upgrade: dist
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Update Centos packages
+      tags: always
+      dnf:
+        update_only: yes
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
+- hosts: all
+  become: true
+  tasks:
+    - name: create a user
+      tags: always
+      user: 
+        name: syam
+        groups: root 
+    - name: add ssh key for syam
+      tags: always
+      authorized_key:
+        user: syam
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDXIG7572ONxHf7NryT9Ju/OWlg1vKPG5nn80mcANIi ansible"     
+    - name: add sudoers file
+      tags: always
+      copy:
+        src: sudoer_syam
+        dest: /etc/sudoers.d/syam
+        owner: root
+        group: root
+        mode: 044

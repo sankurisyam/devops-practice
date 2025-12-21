@@ -1,0 +1,72 @@
+---
+
+
+- name: Apache setup on CentOS
+  hosts: all
+  become: true
+  tasks:
+
+    - name: install apache on centos
+      yum:
+        name: httpd
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: start apache using systemd (centos)
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: update email in centos
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^ServerAdmin'
+        line: 'ServerAdmin dany@123.com'
+      register: pizza
+      when: ansible_distribution == "CentOS"
+
+    - name: restart httpd if config changed
+      systemd:
+        name: httpd
+        state: restarted
+      when:
+        - ansible_distribution == "CentOS"
+        - pizza.changed
+
+
+- name: Apache setup on Ubuntu
+  hosts: all
+  become: true
+  tasks:
+
+    - name: install apache on ubuntu
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: start apache using systemd (ubuntu)
+      systemd:
+        name: apache2
+        state: started
+        enabled: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: update email in ubuntu
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^ServerAdmin'
+        line: 'ServerAdmin dany@123.com'
+      register: apa
+      when: ansible_distribution == "Ubuntu"
+
+    - name: restart apache if config changed
+      systemd:
+        name: apache2
+        state: restarted
+      when:
+        - ansible_distribution == "Ubuntu"
+        - apa.changed
