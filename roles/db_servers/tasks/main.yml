@@ -1,0 +1,20 @@
+- name: Install MySQL (Ubuntu)
+  tags:
+    - mysql
+    - db
+    - ubuntu
+  apt:
+    name: "{{ mysql_pack }}"
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install MySQL (CentOS)
+  tags:
+    - mariadb
+    - db
+    - centos
+  dnf:
+    name: "{{ mysql_pack }}"
+    state: latest
+  when: ansible_distribution == "CentOS"

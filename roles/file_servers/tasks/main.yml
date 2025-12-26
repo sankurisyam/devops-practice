@@ -1,0 +1,6 @@
+- name: Install samba
+  tags: samba,ubuntu
+  package:
+    name: "{{ samba_pack }}"
+    state: latest
+
