@@ -1,0 +1,104 @@
+
+
+
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+    - name: Update Ubuntu packages
+      tags: always
+      apt:
+        update_cache: yes
+      changed_when: false
+      when: ansible_distribution == "Ubuntu"
+    - name: Update Centos packages
+      tags: always
+      dnf:
+        update_cache: yes
+      changed_when: false
+      when: ansible_distribution == "CentOS"
+
+- hosts: all
+  become: true
+  tasks:
+    - name: add ssh key for syam
+      tags: always
+      authorized_key:
+        user: syam
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDXIG7572ONxHf7NryT9Ju/OWlg1vKPG5nn80mcANIi ansible"     
+- hosts: web_servers
+  become: true
+  tasks:
+    - name: Install Apache and PHP
+      tags: apache,apache2,ubuntu
+      apt:
+        name:
+          - "{{ apache_pack }}"
+          - "{{ php_pack }}"
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Apache and PHP (CentOS)
+      tags: apache,centos
+      yum:
+        name:
+          - "{{ apache_pack }}"
+          - "{{ php_pack }}"
+        state: latest
+      when: ansible_distribution == "CentOS"
+
+    - name: change in email line
+      tags: apache,centos,httpd
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^ServerAdmin'
+        line: serveradmin somebody@some.net
+      when: ansible_distribution == "CentOS"
+      register: httpd
+
+    - name: restart httpd
+      tags:
+        - apache
+        - centos
+      service:
+          name: httpd
+          state: restarted
+      when: httpd.changed
+
+    - name: Copy html file
+      tags: apache,apache2,ubuntu
+      copy:
+        src: de_ht.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: "0644"
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Restart apache service
+      tags: apache,ubuntu,apache2
+      service:
+        name: apache2
+        state: restarted
+      when: ansible_distribution == "Ubuntu"
+
+- hosts: db_servers
+  become: true
+  tasks:
+    - name: Install MySQL
+      tags: mysql,db,ubuntu
+      apt:
+        name: "{{ mysql_pack }}"
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+
+- hosts: file_servers
+  become: true
+  tasks:
+    - name: Install samba
+      tags: samba,ubuntu
+      apt:
+        name: "{{ samba_pack }}"
+        state: latest
+      when: ansible_distribution == "Ubuntu"
