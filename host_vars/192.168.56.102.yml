@@ -1,0 +1,4 @@
+apache_pack: httpd
+php_pack: php
+ssh_users: "dany syam"
+ssh_template: sshd_centos.j2

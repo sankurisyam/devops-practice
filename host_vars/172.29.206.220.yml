@@ -1,0 +1,4 @@
+apache_pack: apache2
+php_pack: libapache2-mod-php
+ssh_users: "dany syam"
+ssh_template: sshd_ubuntu.j2
